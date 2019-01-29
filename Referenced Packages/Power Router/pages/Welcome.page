@@ -1,0 +1,38 @@
+<apex:page showHeader="true" sidebar="false">
+	<apex:sectionHeader title="Power Router" subtitle="Welcome, Get started in 3 easy steps!" />
+
+	<style type="text/css">
+	    .col1 {width:33%; height: 50%; text-align:center; }
+	    .col2 {width:33%; height: 50%; text-align:center; }
+	    .col3 {width:33%; height: 50%; text-align:center; }
+
+	    .textbelow {text-align: center; font-weight: bold; font-size: 20px; border-top: 20px;}
+	</style>
+
+    <apex:panelGrid columns="3" id="theGrid" columnClasses="col1, col2, col3" cellpadding="15" cellspacing="25" width="100%" title="Let's Get Started" style="padding: 50px" rules="cols">
+    <apex:panelGroup >
+        <apex:image style="text-align: center;" width="50%" url="{!URLFOR($Resource.zigpr__PowerRouterStatic, 'settings_legal_256.png')}"/>
+     </apex:panelGroup>
+    <apex:panelGroup >
+        <apex:image style="text-align: center;" width="50%" url="{!URLFOR($Resource.zigpr__PowerRouterStatic, 'team_legal_256.png')}"/>
+     </apex:panelGroup>
+    <apex:panelGroup >
+        <apex:image style="text-align: center;" width="50%" url="{!URLFOR($Resource.zigpr__PowerRouterStatic, 'workflow_legal_256.png')}"/>
+     </apex:panelGroup>
+
+
+	<apex:outputLink value="{!URLFOR($Page.zigpr__SettingsList)}">
+        <apex:outputText styleClass="textbelow" value="1. Configure Power Router (for admins) "/>
+    </apex:outputLink>
+
+	<apex:outputLink value="{!URLFOR($Page.zigpr__TeamEdit)}">
+        <apex:outputText styleClass="textbelow" value="2. Create a Team"/>
+    </apex:outputLink>
+
+	<apex:outputLink value="{!URLFOR($Page.zigpr__WorkflowEdit)}">
+        <apex:outputText styleClass="textbelow" value="3. Create Router Workflows"/>
+    </apex:outputLink>
+
+    </apex:panelGrid>
+
+</apex:page>

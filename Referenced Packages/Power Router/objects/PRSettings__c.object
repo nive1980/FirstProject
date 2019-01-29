@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Settings for Power Router</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Activate__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Activates the Power Router</description>
+        <externalId>false</externalId>
+        <label>Activate</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>digestEnabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>digestEnabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>emailErrorNotificationEnabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Is email error notification enabled</description>
+        <externalId>false</externalId>
+        <label>Email Error notification enabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>emailnotify__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>emailnotify</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>enabledLeadSLA__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>enabledLeadSLA</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>isReassignFeatureEnabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Reassign feature enabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>lastCleanUpDate__c</fullName>
+        <defaultValue>TODAY()</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Power Router field to determine the date on which the last clean up happened. Default to 15 days.</description>
+        <externalId>false</externalId>
+        <label>lastCleanUpDate</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>logEnabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Is logging enabled for Power Router</description>
+        <externalId>false</externalId>
+        <label>logEnabled</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>logPriority__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Logging priority for Power Router</description>
+        <externalId>false</externalId>
+        <label>logPriority</label>
+        <length>10</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>numDaysBtwCleanUp__c</fullName>
+        <defaultValue>15</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Number of days between subsequent clean up</description>
+        <externalId>false</externalId>
+        <label>numDaysBtwCleanUp</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>numRecordsPerIteration__c</fullName>
+        <defaultValue>1000</defaultValue>
+        <deprecated>false</deprecated>
+        <description>This field denotes the number of records that can be processed by the power router schedular in one iteration</description>
+        <externalId>false</externalId>
+        <inlineHelpText>This field denotes the number of records that can be processed by the power router schedular in one iteration</inlineHelpText>
+        <label>numRecordsPerIteration</label>
+        <precision>6</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>powerRouterJobId__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Power Router Job Id</label>
+        <length>20</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prAlertUserEmail__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Email address of the user to alert in case of power router errors</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Email address of the user to alert in case of power router errors</inlineHelpText>
+        <label>Error Notification Email</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prCaseReassignmentCondition__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Reassignment condition for Cases</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prLeadReassignmentCondition__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Reassignment condition for Leads</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prOpportunityReassignmentCondition__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Reassignment condition for Opps</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prSLAInMinutes__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>prSLAInMinutes</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionCaseOperatorField__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>prTimeToActionCaseOperatorField</label>
+        <length>10</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionCaseValue__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Time TO Action Case Value</label>
+        <length>50</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionCasefield__c</fullName>
+        <defaultValue>&apos;Status&apos;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>This field tells the Power Router which Case field to consider for calculating time to action by a Rep.</description>
+        <externalId>false</externalId>
+        <label>Time to Action Case Field</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionLeadField__c</fullName>
+        <defaultValue>&apos;Status&apos;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>This field tells the Power Router which Lead field to consider for calculating time
+To action by a Rep.</description>
+        <externalId>false</externalId>
+        <label>Time to Action Lead Field</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionLeadOperatorField__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>prTimeToActionLeadOperatorField</label>
+        <length>10</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionLeadValue__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Time To Action Lead value</label>
+        <length>50</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionOpportunityField__c</fullName>
+        <defaultValue>&apos;Stage&apos;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>This field tells the Power Router which Opportunity field to consider for calculating time
+To action by a Rep</description>
+        <externalId>false</externalId>
+        <label>Time to Action Opportunity Field</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionOpportunityOperatorField__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>prTimeToActionOpportunityOperatorField</label>
+        <length>10</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>prTimeToActionOpportunityValue__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Time To Action Opportunity Value</label>
+        <length>50</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>refreshHour__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Time when the daily limits for the power router get refreshed</description>
+        <externalId>false</externalId>
+        <label>refreshHour</label>
+        <length>10</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>scheduleInterval__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Schedule Interval for Power Router Schedular. Default interval is 5 minutes</description>
+        <externalId>false</externalId>
+        <label>scheduleInterval</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <label>Power Router Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

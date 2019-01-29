@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>RoutingWorkflow__c.prRoutedOpps__r$Id</field>
+    </columns>
+    <columns>
+        <field>RoutingWorkflow__c.prRoutedOpps__r$prRoutingWorkflow__c</field>
+    </columns>
+    <description>Power Router Opportunities grouped by Team</description>
+    <filter>
+        <criteriaItems>
+            <column>RoutingWorkflow__c.prRoutedOpps__r$isPRAssigned__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>1</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>RoutingWorkflow__c$RoutingTeam__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Assigned Opportunities by Team</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>OppRoutingWorkflows__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>RoutingWorkflow__c.prRoutedOpps__r$prAssignedDate__c</dateColumn>
+        <interval>INTERVAL_LAST7</interval>
+    </timeFrameFilter>
+</Report>

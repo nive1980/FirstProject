@@ -1,0 +1,43 @@
+<apex:page standardController="zigpr__RoutingTeam__c" extensions="zigpr.RoutingTeamController"
+           tabstyle="Router_Teams__tab">
+
+    <apex:sectionHeader title="Router Team" subtitle="{!team.Name}"/>
+    <apex:form >
+        <apex:pageBlock mode="inlineEdit" id="team" >
+            <apex:pageMessages ></apex:pageMessages>
+
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton style="float:right" value="Save" action="{!save}" rendered="true"/>
+                <apex:commandButton style="float:right" value="Cancel" action="{!cancel}" rendered="true"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection title="Team details" id="details">
+                <apex:inputField label="Team name" value="{!team.Name }" html-placeholder="Eastern Sales Team"/>
+                <apex:inputField label="Route Order" value="{!team.route_order__c }"/>
+                <apex:inputField label="Active" value="{!team.Active__c }"/>
+            <apex:pageBlockSectionItem >
+            <apex:panelGroup >
+                 <span>&nbsp;&nbsp;</span>
+                        <apex:actionStatus id="statusAction">
+                            <apex:facet name="start">
+                                <img src="/img/loading.gif" height="14px" width="14px"/>
+                            </apex:facet>
+
+                            <apex:facet name="stop">
+                                <img src="/img/s.gif" height="14px" width="14px"/>
+                            </apex:facet>
+                        </apex:actionStatus>
+            </apex:panelGroup>
+        </apex:pageBlockSectionItem>
+                <apex:selectRadio value="{!selectBussinesshour}" label="Assignment Type">
+                    <apex:selectOptions value="{!items}" />
+                    <apex:actionSupport reRender="details,dynamic" event="onchange" status="statusAction"/>
+            </apex:selectRadio>
+                <apex:inputField label="Business Hours" value="{!team.zigpr__Business_Hours__c}" rendered="{!IF(AND(isPremiumOrProfessionalFeaturesEnabled,selectBussinesshour=='BussinessHours'),true,false)}"/>
+
+            </apex:pageBlockSection>
+
+            <c:DynamicRow id="dynamic" membersHere="{!Paging.members}" deletedObjs="{!deletedMembers}" id_of_team="{!team.id}" individualhours="{!selectBussinesshour}" />
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

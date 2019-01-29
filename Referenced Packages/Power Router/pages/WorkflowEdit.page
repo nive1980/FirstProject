@@ -1,0 +1,198 @@
+<apex:page standardController="zigpr__RoutingWorkflow__c" extensions="zigpr.RoutingWFController"
+tabstyle="Router_Workflows__tab">
+
+    <apex:sectionHeader title="Router Workflow" subtitle="{!workflowName}"/>
+    <apex:form >
+        <apex:pageBlock mode="inlineEdit" id="workflow" >
+            <apex:pageMessages id="pageMessages"/>
+            <apex:pageBlockButtons location="top" >
+                <apex:commandButton style="float:right" value="Save" action="{!save}" rendered="true"/>
+                <apex:commandButton style="float:right" value="Cancel" action="{!cancel}" rendered="true"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection title="Workflow Details">
+                <apex:inputField label="Workflow Name" value="{!workflow.Name }" html-placeholder="ex: Hot Leads Workflow"/>
+                <apex:inputField label="Route Order" value="{!workflow.route_order__c }" html-placeholder="1"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Routing Object Details" columns="2">
+                <apex:pageBlockSectionItem id="recordtype">
+                    <apex:outputLabel value="Record Type" for="rtype"/>
+                    <apex:actionRegion >
+                    <apex:selectList size="1" value="{!workflow.zigpr__Object_Type__c}">
+                        <apex:selectOptions value="{!RecordType}" />
+                        <apex:actionsupport event="onchange"  rerender="qList,filterpanel" action="{!resetData}"/>
+                </apex:selectList>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Router Source"/>
+                    <apex:selectList label="Router Source " value="{!workflow.zigpr__QueueId__c}" size="1" id="qList">
+                        <apex:selectOptions value="{!QueueNames}"/>
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+
+                <apex:inputField label="Dispatch order" value="{!workflow.Dispatch_Order__c }" rendered="False"/>
+                <apex:inputField label="Active" value="{!workflow.Active__c }"/>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Algorithm" for="algo"/>
+                    <apex:actionRegion >
+                        <apex:selectList size="1" value="{!workflow.Algorithm__c }" id="algo">
+                            <apex:selectOptions value="{!AlgorithmType}" />
+                            <apex:actionSupport event="onchange" reRender="memberTable" />
+                    </apex:selectList>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+
+                <!-- SLA related field -->
+                <apex:pageBlockSectionItem rendered="{!showPremiumFeatures}">
+                    <apex:outputLabel value="SLA Enabled" for="rtype"/>
+                    <apex:actionRegion >
+                    <apex:inputField label="SLA Enabled" value="{!workflow.isSLAReassignmentEnabled__c }">
+                    <apex:actionSupport event="onchange" rerender="slaPanel"/>
+                    </apex:inputField>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!showPremiumFeatures}">
+                    <apex:outputLabel value="SLA Interval" for="rtype"/>
+
+                    <apex:pageBlockSectionItem >
+                        <apex:inputText label="SLA Time" value="{!slaTime}" style="width:15px"/>
+                        <apex:pageBlockSectionItem >
+                            &nbsp;
+                            <apex:selectList label="SLA Interval" value="{!slaInterval}" size="1">
+                                <apex:selectOptions value="{!slaIntervals}"/>
+
+                            </apex:selectList>
+                        </apex:pageBlockSectionItem>
+
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSectionItem>
+                <!-- SLA related field -->
+
+            </apex:pageBlockSection>
+
+
+            <apex:pageBlockSection title="Workflow details" columns="4" rendered="False">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Algorithm" for="algo"/>
+                    <apex:actionRegion >
+                        <apex:inputField label="Algorithm" value="{!workflow.Algorithm__c }" id="algo">
+                            <apex:actionSupport event="onchange" reRender="memberTable" action="{!resetMemberWeights}"/>
+                        </apex:inputField>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Lookup Team" for="team"/>
+                    <apex:actionRegion >
+                        <apex:inputField label="Lookup Team" value="{!workflow.zigpr__RoutingTeam__c}"
+                                         id="team">
+                            <apex:actionSupport event="onchange" reRender="memberTable" action="{!initmemberattrsMap}"/>
+                        </apex:inputField>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+
+            <apex:outputPanel id="memberTable">
+                <apex:pageBlockSection title="Team and Member Details" columns="1">
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Lookup Team" for="team"/>
+                    <apex:actionRegion >
+                        <apex:inputField label="Lookup Team" value="{!workflow.zigpr__RoutingTeam__c}"
+                                         id="team">
+                            <apex:actionSupport event="onchange" reRender="memberTable" action="{!initmemberattrsMap}"/>
+                        </apex:inputField>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+
+                    <apex:panelGrid width="80%" style="padding-left:120px" >
+                        <!--<apex:pageBlockSection title="Member details" rendered="true">-->
+                        <apex:pageBlockTable value="{!membersAttrMap}" var="member" align="center">
+                            <apex:column headerValue="Id" value="{!member.Name}"/>
+                            <apex:column headerValue="User" value="{!member.zigpr__User__c}"/>
+                            <apex:column headerValue="Vacation Dates" value="{!member.zigpr__User__c}" rendered="False"/>
+                            <apex:column headerValue="Daily Cap" rendered="False">
+                                <apex:inputField value="{!membersAttrMap[member].DailyCap__c}"/>
+                            </apex:column>
+                            <apex:column headerValue="Daily Count" rendered="False">
+                                <apex:inputField value="{!membersAttrMap[member].DailyCount__c}" />
+                            </apex:column>
+                            <apex:column headerValue="Available" rendered="False">
+                                <apex:inputField value="{!member.zigpr__Available__c}" />
+                            </apex:column>
+                            <apex:column headerValue="Weight" rendered="{!workflow.zigpr__Algorithm__c == 'Weighted'}">
+                                <apex:inputField value="{!membersAttrMap[member].Weight__c}" />
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:panelGrid>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+
+            <!-- Object Filters -->
+            <apex:pageBlockSection title="Record Selection Rules" columns="1" rendered="true">
+                    <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Logic operator" for="radio"/>
+                    <apex:selectRadio id="radio" label="Logic Operator" value="{!workflow.zigpr__logic_operator__c}">
+                        <apex:selectOption id="AND" itemLabel="AND" itemValue="AND"/>
+                        <apex:selectOption id="OR" itemLabel="OR" itemvalue="OR" />
+                        <apex:actionSupport event="onchange" reRender="TeamView" />
+                    </apex:selectRadio>
+                    </apex:pageBlockSectionItem>
+
+                <apex:panelGrid width="80%" style="padding-left:120px" id="filterpanel">
+                    <apex:variable value="{!0}" var="rowNum"/>
+                    <apex:pageBlockTable value="{!wrapperFilters}" var="wrapperFilter" align="center" id="filtertable" columnsWidth="50px, 50px, 50px, 50px">
+                        <apex:column headerValue="Field" style="width:50px">
+                            <apex:actionRegion >
+                                <apex:selectList style="width:160px" value="{!wrapperFilter.filter.zigpr__Record_Field__c}" size="1">
+                                    <apex:selectOptions value="{!ObjectFields}"/>
+                                    <apex:actionSupport event="onchange" reRender="fieldpanel"/>
+                                </apex:selectList>
+                            </apex:actionRegion>
+                        </apex:column>
+
+                        <apex:column headerValue="Operator">
+
+                            <apex:actionRegion >
+                                <apex:selectList style="width:160px" value="{!wrapperFilter.filter.zigpr__Operator__c}" size="1">
+                                    <apex:selectOptions value="{!operators}"/>
+                                    <apex:actionSupport event="onchange" reRender="fieldpanel"/>
+                                </apex:selectList>
+                            </apex:actionRegion>
+                        </apex:column>
+
+                        <apex:column headerValue="Value">
+                            <apex:outputPanel id="fieldpanel" rendered="True">
+                                <apex:inputField rendered="{!wrapperFilter.renderInputField}" value="{!wrapperFilter.sObj[wrapperFilter.filter.zigpr__Record_Field__c]}"></apex:inputField>
+                                <apex:inputTextarea rendered="{!wrapperFilter.renderTextArea}" value="{!wrapperFilter.strStore}"> </apex:inputTextarea>
+                                <apex:outputPanel rendered="{!wrapperFilter.renderPicklist}">
+                                    <apex:selectList value="{!wrapperFilter.strStore}" size="1">
+                                        <apex:selectOptions value="{!wrapperFilter.picklistValues}"/>
+                                    </apex:selectList>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </apex:column>
+
+                        <apex:column headerValue="Action">
+                            <apex:commandButton value="Remove" id="removeButton"
+                                                action="{!removeFilter}" rerender="filterpanel" rendered="true"
+                                                immediate="True">
+                                <apex:param value="{!rowNum}" name="row" assignTo="{!removeFilterIndex}"/>
+                            </apex:commandButton>
+                            <apex:variable var="rowNum" value="{!rowNum + 1}"/>
+                        </apex:column>
+
+                    </apex:pageBlockTable>
+                    <apex:commandButton value="Add Filter" id="moreButton"
+                        action="{!createNewFilter}" rerender="filterpanel, pageMessages" rendered="true">
+                    </apex:commandButton>
+                </apex:panelGrid>
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

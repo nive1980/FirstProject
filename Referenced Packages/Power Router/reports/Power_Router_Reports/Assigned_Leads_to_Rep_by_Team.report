@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>RoutingWorkflow__c$Name</field>
+    </columns>
+    <columns>
+        <field>RoutingWorkflow__c.prRoutedLeads__r$Name</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>RoutingWorkflow__c.prRoutedLeads__r$isPRAssigned__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>1</value>
+        </criteriaItems>
+    </filter>
+    <format>Matrix</format>
+    <groupingsAcross>
+        <dateGranularity>Day</dateGranularity>
+        <field>RoutingWorkflow__c.prRoutedLeads__r$prRoutingWorkflow__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsAcross>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>RoutingWorkflow__c$RoutingTeam__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>RoutingWorkflow__c.prRoutedLeads__r$prOwner__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Assigned Leads to Rep by Team</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>LeadRoutingWorkflows__c</reportType>
+    <scope>organization</scope>
+    <showDetails>false</showDetails>
+    <timeFrameFilter>
+        <dateColumn>RoutingWorkflow__c.prRoutedLeads__r$prAssignedDate__c</dateColumn>
+        <interval>INTERVAL_LAST7</interval>
+    </timeFrameFilter>
+</Report>

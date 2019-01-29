@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>RoutingWorkflow__c.prRoutedCases__r$CaseNumber</field>
+    </columns>
+    <columns>
+        <field>RoutingWorkflow__c.prRoutedCases__r$prRoutingWorkflow__c</field>
+    </columns>
+    <description>Assigned Cases grouped by Routing Teams</description>
+    <filter>
+        <criteriaItems>
+            <column>RoutingWorkflow__c.prRoutedCases__r$isPRAssigned__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>1</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>RoutingWorkflow__c$RoutingTeam__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Assigned Cases by Team</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CaseRoutingWorkflows__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>RoutingWorkflow__c.prRoutedCases__r$prAssignedDate__c</dateColumn>
+        <interval>INTERVAL_LAST7</interval>
+    </timeFrameFilter>
+</Report>

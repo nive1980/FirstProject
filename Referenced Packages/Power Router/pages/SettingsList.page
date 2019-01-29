@@ -1,0 +1,328 @@
+<apex:page Controller="zigpr.RoutingQueueController" tabStyle="PR_Settings__tab">
+    <style type="text/css">.dim_b {width:200px; height:30px;}
+
+        .activeTab   { background-color: #236FBD; color:white; background-image:none}
+        .inactiveTab { background-color: lightgrey; color:black; background-image:none}
+
+        .customtable{
+            width: 100%;
+            background-color: white;
+        }
+         .custom_table .custom_tr {
+            display:inline;
+        }
+        .cusotm_tr{
+            border: 1px solid green;
+        }
+         .metaBtn{
+            width: 95%;
+            height: 30px;
+            position: absolute;
+            margin: 5%;
+         }
+          .fillerdomain{
+            /*overflow:auto;*/
+            padding: 5px;
+            font-size: 13px;
+            border: 1px solid green;
+            border-radius: 10px 10px 10px 10px;
+       }
+       .fillerdomain:hover{
+            background: #BADA55;
+       }
+        .custom-th{
+            column-span: 5px;
+            background-color: white;
+        }
+    </style>
+	<apex:sectionHeader title="Power Router Settings"/>
+	<apex:tabPanel switchType="client" selectedTab="{!ActiveTab}" id="SettingTabPanel" tabClass="activeTab" inactiveTabClass="inactiveTab">
+		<apex:tab label="General Settings" name="GeneralSettings" id="EditTabOne">
+			<apex:form >
+				<apex:pageBlock mode="Edit" id="queue">
+					<apex:pageMessages ></apex:pageMessages>
+					<apex:pageBlockButtons location="top" >
+						<apex:commandButton action="{!edit_settings}" value="Edit" rendered="{!isPowerRouterAdmin}"/>
+						<apex:commandButton action="{!deactivatePowerRouter}" value="Stop Power Router" rendered="{!$Setup.PRSettings__c.Activate__c && isPowerRouterAdmin}"/>
+						<apex:commandButton action="{!activatePowerRouter}" value="Start Power Router" rendered="{!NOT($Setup.PRSettings__c.Activate__c) && isPowerRouterAdmin}"/>
+					</apex:pageBlockButtons>
+
+					<apex:pageBlockSection title="Schedular Settings" columns="1">
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Routing Schedule Interval (in minutes)" for="interval"/>
+							<apex:outputText id="interval" value="{!$Setup.PRSettings__c.scheduleInterval__c}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Power Router Status" for="rtype"/>
+							<apex:outputText label="pStatus" value="{!Status}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem rendered="{!$Setup.PRSettings__c.Activate__c}">
+							<apex:outputLabel value="Power Router Job Id" for="jobId"/>
+							<apex:outputText id="jobId" value="{!jobId}"/>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+					<apex:pageBlockSection title="Notification settings" columns="1">
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Send Email Notification to Assignment Owner" for="rtype"/>
+							<apex:outputText id="rtype" label="Activated" value="{!$Setup.PRSettings__c.emailnotify__c}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Send Email Notification on Error" for="rtype"/>
+							<apex:outputText id="rtype" label="Activated" value="{!$Setup.PRSettings__c.emailErrorNotificationEnabled__c}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem rendered="{!$Setup.PRSettings__c.emailErrorNotificationEnabled__c}">
+							<apex:outputLabel value="Error Notification Email" for="rtype"/>
+							<apex:outputText label="Activated" value="{!$Setup.PRSettings__c.prAlertUserEmail__c}"/>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+		</apex:tab>
+		<apex:tab label="Advanced Settings" name="AdvancedSettings" id="tabTwo" rendered="{!IF(isPremiumOrProfessionalFeaturesEnabled,true,false)}">
+			<apex:form >
+				<apex:pageBlock mode="Edit" id="AdvancedTab">
+					<apex:pageBlockButtons location="top" >
+						<apex:commandButton action="{!edit_settings}" value="Edit" rendered="{!isPowerRouterAdmin}"/>
+						<apex:commandButton action="{!deactivatePowerRouter}" value="Stop Power Router" rendered="{!$Setup.PRSettings__c.Activate__c && isPowerRouterAdmin}"/>
+						<apex:commandButton action="{!activatePowerRouter}" value="Start Power Router" rendered="{!NOT($Setup.PRSettings__c.Activate__c) && isPowerRouterAdmin}"/>
+					</apex:pageBlockButtons>
+
+					<apex:pageBlockSection title="Router Sources" columns="1">
+						<apex:outputLabel value="Add users as Router Sources for Power Router. These users will be available in Router Sources dropdown in Router Workflows and can be used in place of standard Queues. This is only required for objects which can't be routed through a salesforce queue. For eg. Opportunities" />
+						<apex:pageBlockTable value="{!userQueues}" var="userQueue" align="center" id="dispTable">
+							<apex:column headerValue="Row">
+								<apex:outputText label="Row" value="{!userQueue.rowIndex + 1}"/>
+							</apex:column>
+							<apex:column headerValue="User Name" value="{!userQueue.name}"/>
+						</apex:pageBlockTable>
+					</apex:pageBlockSection>
+					<apex:pageBlockSection title="Advanced Power Router Settings" id="advanced" columns="1">
+
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Lead Time to Action Field" for="input"/>
+							<apex:outputText value="{!IF($Setup.PRSettings__c.prTimeToActionLeadField__c !=null,$Setup.PRSettings__c.prTimeToActionLeadField__c,'Not Assigned')}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Case Time to Action Field" for="input"/>
+							<apex:outputText value="{!IF($Setup.PRSettings__c.prTimeToActionCasefield__c != null,$Setup.PRSettings__c.prTimeToActionCasefield__c,'Not Assigned')}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Opportunity Time To Action Field" for="input"/>
+							<apex:outputText value="{!IF($Setup.PRSettings__c.prTimeToActionOpportunityField__c != null,$Setup.PRSettings__c.prTimeToActionOpportunityField__c,'Not Assigned')}"/>
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem rendered="{!showPremiumFeatures}">
+							<apex:outputLabel value="Lead Reassignment Condition" for="input"/>
+							<apex:outputText value="{!IF($Setup.PRSettings__c.prLeadReassignmentCondition__c != null ,$Setup.PRSettings__c.prLeadReassignmentCondition__c ,'Not Assigned')}"/>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+		</apex:tab>
+		<apex:tab label="Matching Settings" name="MatchingSettings" id="EditTabTwo" rendered="{!matchingEnabled}" >
+			<!-- <apex:messages /> -->
+			<apex:form >
+				<apex:pageBlock >
+					<apex:pageBlockButtons location="top" >
+						<apex:commandButton action="{!edit_settings}" value="Edit" rendered="{!isPowerRouterAdmin}"/>
+						<apex:commandButton action="{!deactivatePowerRouter}" value="Stop Power Router" rendered="{!$Setup.PRSettings__c.Activate__c && isPowerRouterAdmin}"/>
+						<apex:commandButton action="{!activatePowerRouter}" value="Start Power Router" rendered="{!NOT($Setup.PRSettings__c.Activate__c) && isPowerRouterAdmin}"/>
+					</apex:pageBlockButtons>
+					<apex:pageBlockSection title="Meta Data" id="metaId">
+						<apex:pageBlockSectionItem >
+							<apex:outputPanel id="createConstants">
+								<apex:commandButton action="{!createIndexes}" value="Create Index" reRender="metaId" disabled="{!IF(metaStatus=='Running',true,false)}" styleClass="metaBtn"/>
+							</apex:outputPanel>
+						</apex:pageBlockSectionItem>
+					<br /><hr />
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Created Date"/>
+                            <apex:outputText value="{!timeWhenCreatedMetaData}"/>
+                        </apex:pageBlockSectionItem>
+                         <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Status"/>
+                             <apex:outputText value="{!metastatus}"/>
+                        </apex:pageBlockSectionItem>
+				</apex:pageBlockSection>
+			</apex:pageBlock>
+		</apex:form>
+		<apex:form >
+				<apex:pageBlock >
+					<apex:pageBlockSection title="Lead To Contact">
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Is Match Lead To Contact Enabled :" for="input" />
+							<apex:outputText value="{!prContactIsEnabled}" />
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match Order Value :" for="input"/>
+							<apex:outputText value="{!prLeadToContactOrder}" />
+						</apex:pageBlockSectionItem>
+						<!--
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Filter Field :" />
+								<apex:outputText value="{!prContactFilterField}" />
+							</apex:pageBlockSectionItem>
+							<apex:pageBlockSectionItem >
+								<apex:outputLabel value="Filter Value :" />
+								<apex:outputText value="{!prContactFilterValue}" />
+							</apex:pageBlockSectionItem>
+						 -->
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Assign To :" />
+							<apex:outputText value="{!prContactOwner}" />
+						</apex:pageBlockSectionItem>
+						<br />
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match In Order: " />
+							<apex:repeat value="{!contactdbvalues}" var="cdbv">
+								<apex:outputText value="{!cdbv}" />
+								<br />
+							</apex:repeat>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+			<apex:form >
+				<apex:pageBlock >
+					<apex:pageBlockSection title="Lead To Account">
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Is Match Lead To Account Enabled :" for="input" />
+							<apex:outputText value="{!prAccountIsEnabled}" />
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match Order Value :" for="input"/>
+							<apex:outputText value="{!prLeadToAccountOrder}" />
+						</apex:pageBlockSectionItem>
+						<!--
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Filter Field :" />
+							<apex:outputText value="{!prAccountFilterField}" />
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Filter Value :" />
+							<apex:outputText value="{!prAccountFilterValue}" />
+						</apex:pageBlockSectionItem>
+						 -->
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Assign To :" />
+							<apex:outputText value="{!prAccountOwner}" />
+						</apex:pageBlockSectionItem>
+						<br />
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match In Order: " />
+							<apex:repeat value="{!accountdbvalues}" var="adbv">
+								<apex:outputText value="{!adbv}" />
+								<br />
+							</apex:repeat>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+				<apex:form >
+				<apex:pageBlock >
+					<apex:pageBlockSection title="Lead To Opportunity">
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Is Match Lead To Opportunity Enabled :" for="input" />
+							<apex:outputText value="{!prOppIsEnabled}" />
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match Order Value :" for="input"/>
+							<apex:outputText value="{!prLeadToOppOrder}" />
+						</apex:pageBlockSectionItem>
+						<!--
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Filter Field :" />
+							<apex:outputText value="{!prOppFilterField}" />
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Filter Value :" />
+							<apex:outputText value="{!prOppFilterValue}" />
+						</apex:pageBlockSectionItem>
+						 -->
+						 <apex:pageBlockSectionItem >
+						 <apex:outputLabel value="Open Opportunity "/>
+						 <apex:outputText value="{!openOpportunity}" />
+					 </apex:pageBlockSectionItem>
+					 <br />
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Assign To :" />
+							<apex:outputText value="{!prOppOwner}" />
+						</apex:pageBlockSectionItem>
+						<br />
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match In Order: " />
+							<apex:repeat value="{!oppdbvalues}" var="odbv">
+								<apex:outputText value="{!odbv}" />
+								<br />
+							</apex:repeat>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+				<apex:form >
+				<apex:pageBlock >
+					<apex:pageBlockSection title="Lead To Lead">
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Is Match Lead To Lead Enabled :" for="input" />
+							<apex:outputText value="{!prLeadIsEnabled}" />
+						</apex:pageBlockSectionItem>
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match Order Value :" for="input"/>
+							<apex:outputText value="{!prLeadToLeadOrder}" />
+						</apex:pageBlockSectionItem>
+
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Assign To :" />
+							<apex:outputText value="{!prLeadOwner}" />
+						</apex:pageBlockSectionItem>
+
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match From :" />
+							<apex:outputText value="{!IF(ISNULL(prLeadMatchFrom),'Null',prLeadMatchFrom)}" />
+						</apex:pageBlockSectionItem>
+
+						<apex:pageBlockSectionItem >
+							<apex:outputLabel value="Match In Order: " />
+							<apex:repeat value="{!leaddbvalues}" var="ldbv">
+								<apex:outputText value="{!ldbv}" />
+								<br />
+							</apex:repeat>
+						</apex:pageBlockSectionItem>
+					</apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+					<!-- Display the filler words -->
+				<apex:form >
+				<apex:pageBlock >
+					<apex:pageBlockSection id="filler" columns="2" title="Fillers And Domain Words">
+                        <apex:pageBlockSectionItem >
+							<apex:outputPanel >
+								<table class="custom_table">
+									<apex:repeat value="{!DisplayNow}" var="f">
+										<tr class="custom_tr">
+											<td class="fillerdomain" style="border:1px solid green;">
+											<apex:outputText value="{!f}" />&nbsp;
+											</td>
+										</tr>
+									</apex:repeat>
+								</table>
+							</apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputPanel >
+                                    <table class="custom_table">
+                                        <apex:repeat value="{!DomainWords}" var="d">
+                                            <tr class="custom_tr">
+                                                <td class="fillerdomain" style="border:1px solid green;">
+                                                <apex:outputText value="{!d}" />&nbsp;
+                                                </td>
+                                            </tr>
+                                        </apex:repeat>
+                                    </table>
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+				</apex:pageBlock>
+			</apex:form>
+		</apex:tab>
+	</apex:tabPanel>
+</apex:page>

@@ -1,0 +1,513 @@
+<apex:page controller="zigpr.RoutingQueueController" tabStyle="PR_Settings__tab">
+    <style>
+    .dim_b {width:200px; height:30px;}
+    .activeTab {background-color: #236FBD; color:white; background-image:none}
+    .inactiveTab { background-color: lightgrey; color:black; background-image:none}
+        a{
+            text-decoration:none;
+            color:"red";
+        }
+
+        .inp{
+            height:25px;
+            width:90%;
+        }
+
+       .inp:active{
+            border-bottom: 3px solid blue;
+        }
+
+        .custom_table .custom_tr {
+            display:inline;
+        }
+
+        .cusotm_tr{
+            border: 1px solid green;
+        }
+
+       .fillerdomain{
+            /*overflow:auto;*/
+            padding: 5px;
+            font-size: 13px;
+            border-top-right-radius: 5%;
+            border-radius: 10px 10px 10px 10px;
+            font-family: Helvetica, Arial, sans-serif;
+            text-transform: capitalize;
+       }
+
+       .add{
+            border:1px solid blue;
+            padding: 3px;
+            margin: 2px;
+            border-radius: 5px 10px 15px 20px;
+            text-decoration: none;
+            font-size: 20px;
+            font-family: Helvetica, Arial, sans-serif;
+            font-style: all;
+       }
+       .fillerdomain:hover{
+            background: #BADA55;
+       }
+
+        .order{
+            height: 100px;
+            width: 190px;
+            border: 1px solid black;
+            word-spacing: 4px;
+            font-family: Verdana,Helvetica,Georgia,Arial;
+            padding: 8px;
+            font-size: 10px;
+        }
+
+    </style>
+    <apex:sectionHeader title="Power Router Settings"/>
+    <apex:pageMessages ></apex:pageMessages>
+    <apex:tabPanel switchType="client" selectedTab="GeneralSetting" id="SettingTabPanel" tabClass="activeTab" inactiveTabClass="inactiveTab">
+        <apex:tab label="General Settings" name="EditGeneralSetting" id="EditTabOne">
+            <apex:form >
+                <apex:pageBlock mode="detail" id="queue" >
+                    <apex:pageBlockButtons location="top" >
+                        <apex:commandButton style="float:right" value="Save" action="{!save}" rendered="true"/>
+                        <apex:commandButton style="float:right" value="Cancel" action="{!cancel}" rendered="true"/>
+                    </apex:pageBlockButtons>
+                    <apex:pageBlockSection title="Schedular Settings" columns="1" id="interval">
+                        <apex:selectList label="Routing Schedule Interval" value="{!settings.zigpr__scheduleInterval__c}" size="1">
+                            <apex:actionSupport reRender="interval" event="onchange" />
+                            <apex:selectOptions value="{!Intervals}"/>
+                        </apex:selectList>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection title="Notification Settings" columns="1" id="notsettings">
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Send Email Notification to Assigned Owner" for="email"/>
+                            <apex:inputCheckbox id="email" value="{!settings.zigpr__emailnotify__c}">
+                                <apex:actionSupport event="onchange" reRender="notsettings" />
+                            </apex:inputCheckbox>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Send Email Notification on Error" for="input"/>
+                            <apex:actionRegion >
+                                <apex:inputCheckbox value="{!settings.zigpr__emailErrorNotificationEnabled__c}" id="input">
+                                    <apex:actionSupport event="onchange" rerender="notsettings"/>
+                                </apex:inputCheckbox>
+                            </apex:actionRegion>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem rendered="{!settings.zigpr__emailErrorNotificationEnabled__c == True}" id="emailNotify">
+                            <apex:outputLabel value="{!$ObjectType.zigpr__PRSettings__c.fields.zigpr__prAlertUserEmail__c.label}" for="errorNotify"/>
+                            <apex:inputfield id="errorNotify" value="{!settings.zigpr__prAlertUserEmail__c}">
+                                <apex:actionSupport event="onchange" reRender="emailNotify" />
+                            </apex:inputfield>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection title="Time To Action Settings" columns="1" rendered="False">
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Send email notification" for="email"/>
+                            <apex:inputCheckbox id="email" value="{!settings.zigpr__emailnotify__c}"/>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+            </apex:form>
+        </apex:tab>
+        <apex:tab label="Advanced Settings" name="EditAdvancedSettings" id="EditTabTwo" rendered="{!IF(isPremiumOrProfessionalFeaturesEnabled,true,false)}">
+            <apex:form >
+                <apex:pageBlock >
+                <apex:pageBlockButtons location="top" >
+                        <apex:commandButton style="float:right" value="Save" action="{!save}" rendered="true"/>
+                        <apex:commandButton style="float:right" value="Cancel" action="{!cancel}" rendered="true"/>
+                    </apex:pageBlockButtons>
+                    <apex:pageBlockSection title="Router Sources" columns="1" id="queueSection" rendered="True">
+                        <apex:outputLabel value="Add users as Router Sources for Power Router. These users will be available in Router Sources dropdown in Router Workflows and can be used in place of standard Queues. This is only required for objects which can't be routed through a salesforce queue. For eg. Opportunities" />
+                        <apex:panelGrid width="80%" style="padding-left:120px" id="filterpanel">
+                            <apex:variable var="rowNumber" value="{!0}"/>
+                            <apex:pageBlockTable value="{!userQueues}" var="userqueue" align="center" id="dispTable">
+                                <apex:column headerValue="Row">
+                                    <apex:outputText label="Row" value="{!userqueue.rowIndex}"/>
+                                </apex:column>
+                                <apex:column headerValue="Select User">
+                                    <apex:inputField label="User as Queue" value="{!userqueue.dummyAccount.ownerId}"/>
+                                </apex:column>
+                                <apex:column headerValue="Action">
+                                    <apex:commandButton value="Delete" action="{!deleteRow}" rerender="filterpanel">
+                                        <apex:param name="Row" value="{!FLOOR(rowNumber)}" assignTo="{!rowIndex}"/>
+                                    </apex:commandButton>
+                                    <apex:variable var="rowNumber" value="{!rowNumber+1}" />
+                                </apex:column>
+                            </apex:pageBlockTable>
+                            <apex:commandButton value="Add User" id="moreButton" immediate="true" action="{!addRow}" rerender="dispTable" rendered="true"></apex:commandButton>
+                        </apex:panelGrid>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection title="Advanced Power Router Settings" id="advanced" columns="1">
+                       <!-- <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="Show advanced settings" for="input"/>
+                            <apex:actionRegion >
+                                <apex:inputCheckbox value="{!showAdvancedSettings}" id="input">
+                                    <apex:actionSupport event="onchange" rerender="show"/>
+                                </apex:inputCheckbox>
+                            </apex:actionRegion>
+                        </apex:pageBlockSectionItem> -->
+                    </apex:pageBlockSection>
+                    <apex:outputPanel id="show">
+                        <apex:pageBlockSection columns="1">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel style="font-weight: bold" value="Please be careful while updating these settings"/>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Lead Time to Action Field" for="input"/>
+                                <apex:inputField id="input" value="{!settings.zigpr__prTimeToActionLeadField__c}">
+                                    <apex:actionSupport event="onchange" reRender="show" />
+                                </apex:inputField>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Case Time to Action Field" for="input" />
+                                <apex:inputField id="input" value="{!settings.zigpr__prTimeToActionCasefield__c}">
+                                    <apex:actionSupport event="onchange" reRender="show" />
+                                </apex:inputField>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Opportunity Time To Action Field" for="input"/>
+                                <apex:inputField id="input" value="{!settings.zigpr__prTimeToActionOpportunityField__c}">
+                                    <apex:actionSupport event="onchange" reRender="show" />
+                                </apex:inputField>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem rendered="{!showPremiumFeatures}">
+                                <apex:outputLabel value="Lead Reassignment Condition" for="input"/>
+                                <apex:inputField id="input" value="{!settings.zigpr__prLeadReassignmentCondition__c}">
+                                    <apex:actionSupport event="onchange" reRender="show" />
+                                </apex:inputField>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageBlockSection>
+                    </apex:outputPanel>
+                </apex:pageBlock>
+            </apex:form>
+        </apex:tab>
+        <apex:tab label="Matching" name="MatchingTab" id="EditMatchingTab" rendered="{!matchingEnabled}">
+            <apex:pageBlock id="MainTab">
+                <apex:pageBlockButtons location="top" >
+                    <apex:form >
+                        <apex:commandButton style="float:right" value="Save" action="{!save}" rendered="true"/>
+                        <apex:commandButton style="float:right" value="Cancel" action="{!cancel}" rendered="true"/>
+                    </apex:form>
+                </apex:pageBlockButtons>
+                <apex:form id="MatchingForm">
+                    <apex:pageBlock id="matchingContact" title="Lead To Contact">
+                        <apex:pageBlockSection id="contactMap">
+                            <apex:outputPanel >
+                                <apex:inputCheckbox value="{!prContactIsEnabled}">
+                                    <apex:actionsupport event="onchange" rerender="matchingContact" />
+                                </apex:inputCheckbox>
+                                <apex:outputLabel value="Is Match Lead to Contact Enabled" />
+                            </apex:outputPanel>
+                        </apex:pageBlockSection>
+                        <apex:pageBlockSection rendered="{!prContactIsEnabled}" id="ContactAssign">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Match Order:"></apex:outputLabel>
+                                <apex:selectList size="1" value="{!prLeadToContactOrder}" styleClass="dim_b">
+                                    <apex:actionsupport event="onchange" rerender="MainTab" />
+                                    <apex:selectOptions value="{!order}"></apex:selectOptions>
+                                </apex:selectList>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Assign To:" />
+                                <apex:selectList size="1" value="{!prContactOwner}" styleClass="dim_b">
+                                    <apex:actionsupport event="onchange" rerender="ContactAssign" />
+                                    <apex:selectOptions value="{!AssignedTo_L2C}"></apex:selectOptions>
+                                </apex:selectList>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageBlockSection>
+                        <!--
+                        <apex:pageBlockSection rendered="{!prContactIsEnabled}" id="ContactFilter">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Filter By:"></apex:outputLabel>
+                                <apex:selectList size="1" value="{!prContactFilterField}" styleClass="dim_b">
+                                    <apex:actionsupport event="onchange" rerender="ContactFilter" />
+                                    <apex:selectOptions value="{!contactobjectfields}"></apex:selectOptions>
+                                </apex:selectList>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Filter Value  :" />
+                                <apex:outputPanel >
+                                    <apex:inputText styleClass="dim_b" value="{!prContactFilterValue}" />
+                                    <apex:actionsupport event="onchange"  rerender="ContactFilter" />
+                                </apex:outputPanel>
+                            </apex:pageBlockSectionItem>
+                        </apex:pageBlockSection>
+                         -->
+                        <apex:pageBlockSection rendered="{!prContactIsEnabled}">
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Select fields (in order) to match on: [?]" />
+                                <apex:panelGrid columns="3" id="contact_Match_Fields">
+                                    <apex:selectList styleClass="order" id="sel1" value="{!selected_MapField_Left_for_contact}" multiselect="true" >
+                                        <apex:selectOptions value="{!contactunselectedvalues}" />
+                                    </apex:selectList>
+                                    <apex:panelGroup >
+                                        <br/>
+                                        <apex:commandButton action="{!contactselectclick}" reRender="contact_Match_Fields" value=">>" />
+                                            <br/>
+                                            <br/>
+                                            <apex:commandButton action="{!contactunselectclick}" reRender="contact_Match_Fields" value="<<" />
+                                        </apex:panelGroup>
+                                        <apex:selectList styleClass="order" id="sel2" value="{!selected_MapField_Right_for_contact}" multiselect="true" >
+                                            <apex:selectOptions value="{!contactSelectedValues}" />
+                                        </apex:selectList>
+                                    </apex:panelGrid>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                        </apex:pageBlock>
+                        <!-- *********************************** Match To Account *************************** -->
+                        <apex:pageBlock id="matchingAccount" title="Lead To Account">
+                            <apex:pageBlockSection id="accountMap">
+                                <apex:outputPanel >
+                                    <apex:inputCheckbox value="{!prAccountIsEnabled}">
+                                        <apex:actionsupport event="onchange" rerender="matchingAccount" />
+                                    </apex:inputCheckbox>
+                                    <apex:outputLabel value="Is Match Lead to Account Enabled" />
+                                </apex:outputPanel>
+                            </apex:pageBlockSection>
+                            <apex:pageBlockSection rendered="{!prAccountIsEnabled}" id="AccountAssign">
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="Match Order:" />
+                                    <apex:selectList size="1" value="{!prLeadToAccountOrder}" styleClass="dim_b">
+                                        <apex:actionsupport event="onchange" rerender="MainTab" />
+                                        <apex:selectOptions value="{!order}"></apex:selectOptions>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="Assign To:" />
+                                    <apex:selectList size="1" value="{!prAccountOwner}" styleClass="dim_b">
+                                        <apex:actionsupport event="onchange" rerender="AccountAssign" />
+                                        <apex:selectOptions value="{!AssignedTo_L2A}"></apex:selectOptions>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                            <!--
+                            <apex:pageBlockSection rendered="{!prAccountIsEnabled}" id="AccountFilter">
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="Filter By :" />
+                                    <apex:selectList size="1" value="{!prAccountFilterField}" styleClass="dim_b">
+                                        <apex:actionsupport event="onchange" rerender="AccountFilter" />
+                                        <apex:selectOptions value="{!accountobjectfields}"></apex:selectOptions>
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputText value="Filter Value" rendered="{!prAccountIsEnabled}" />
+                                    <apex:outputPanel >
+                                    <apex:inputText styleClass="dim_b" value="{!prAccountFilterValue}" />
+                                        <apex:actionsupport event="onchange" rerender="AccountFilter" />
+                                    </apex:outputPanel>
+                                </apex:pageBlockSectionItem>
+                            </apex:pageBlockSection>
+                             -->
+                            <apex:pageBlockSection rendered="{!prAccountIsEnabled}">
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputLabel value="Select fields (in order) to match on: [?]" />
+                                    <apex:panelGrid columns="3" id="account_Match_Fields">
+                                        <apex:selectList styleClass="order" id="sel1" value="{!selected_MapField_Left_for_account}" multiselect="true" >
+                                            <apex:selectOptions value="{!accountunselectedvalues}" />
+                                        </apex:selectList>
+                                        <apex:panelGroup >
+                                            <br/>
+                                            <apex:commandButton action="{!accountselectclick}" reRender="account_Match_Fields" value=">>" />
+                                                <br/>
+                                                <br/>
+                                                <apex:commandButton action="{!accountunselectclick}" reRender="account_Match_Fields" value="<<" />
+                                            </apex:panelGroup>
+                                            <apex:selectList styleClass="order" id="sel2" value="{!selected_MapField_Right_for_account}" multiselect="true" >
+                                                <apex:selectOptions value="{!accountSelectedValues}" />
+                                            </apex:selectList>
+                                        </apex:panelGrid>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                            </apex:pageBlock>
+                            <!-- ********************************* Match TO OPP ********************************* -->
+                            <apex:pageBlock id="matchingOpp" title="Lead To Opportunity">
+                                <apex:pageBlockSection id="leadMap">
+                                    <apex:outputPanel >
+                                        <apex:inputCheckbox value="{!prOppIsEnabled}">
+                                            <apex:actionsupport event="onchange" rerender="matchingOpp" />
+                                        </apex:inputCheckbox>
+                                        <apex:outputLabel value="Is Match Lead to Opportunity Enabled" />
+                                    </apex:outputPanel>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection rendered="{!prOppIsEnabled}" id="LeadAssign">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Match Order:" />
+                                        <apex:selectList size="1" value="{!prLeadToOppOrder}" styleClass="dim_b">
+                                            <apex:actionsupport event="onchange" rerender="MainTab" />
+                                            <apex:selectOptions value="{!order}"></apex:selectOptions>
+                                        </apex:selectList>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Assign To:" />
+                                        <apex:selectList size="1" value="{!prOppOwner}" styleClass="dim_b">
+                                            <apex:actionsupport event="onchange" rerender="LeadAssign" />
+                                            <apex:selectOptions value="{!AssignedTo_L2O}"></apex:selectOptions>
+                                        </apex:selectList>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                <!--
+                                <apex:pageBlockSection rendered="{!prOppIsEnabled}" id="oppFilter">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Filter By :" />
+                                        <apex:selectList size="1" value="{!prOppFilterField}" styleClass="dim_b">
+                                            <apex:actionsupport event="onchange" rerender="oppFilter" />
+                                            <apex:selectOptions value="{!oppobjectfields}"></apex:selectOptions>
+                                        </apex:selectList>
+                                    </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputText value="Filter Value" rendered="{!prOppIsEnabled}" />
+                                        <apex:outputPanel >
+                                        <apex:inputText styleClass="dim_b" value="{!prOppFilterValue}" />
+                                            <apex:actionsupport event="onchange" rerender="oppFilter" />
+                                        </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                 -->
+                                 <apex:pageBlockSection rendered="{!prOppIsEnabled}">
+                                 <apex:outputPanel >
+                                   <apex:inputCheckBox id="openOpp" value="{!openOpportunity}" >
+                                    <apex:actionSupport event="onchange" reRender="matchingOpp" />
+                                 </apex:inputCheckBox>
+                                   <apex:outputText value="Open Opportunity" />
+                                 </apex:outputPanel>
+                               </apex:pageBlockSection>
+                                <apex:pageBlockSection rendered="{!prOppIsEnabled}">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Select fields (in order) to match on: [?]" />
+                                        <apex:panelGrid columns="3" id="opp_Match_Fields">
+                                            <apex:selectList styleClass="order" id="sel1" value="{!selected_MapField_Left_for_opp}" multiselect="true" >
+                                                <apex:selectOptions value="{!oppunselectedvalues}" />
+                                            </apex:selectList>
+                                            <apex:panelGroup >
+                                                <br/>
+                                                <apex:commandButton action="{!oppselectclick}" reRender="opp_Match_Fields" value=">>" />
+                                                    <br/>
+                                                    <br/>
+                                                    <apex:commandButton action="{!oppunselectclick}" reRender="opp_Match_Fields" value="<<" />
+                                                </apex:panelGroup>
+                                                <apex:selectList styleClass="order" id="sel2" value="{!selected_MapField_Right_for_opp}" multiselect="true" >
+                                                    <apex:selectOptions value="{!oppSelectedValues}" />
+                                                </apex:selectList>
+                                            </apex:panelGrid>
+                                        </apex:pageBlockSectionItem>
+                                    </apex:pageBlockSection>
+                                </apex:pageBlock>
+
+
+                                <apex:pageBlock id="matchingLead" title="Lead To Lead ">
+                                    <apex:pageBlockSection id="lMap">
+                                    <apex:outputPanel >
+                                        <apex:inputCheckbox value="{!prLeadIsEnabled}">
+                                            <apex:actionsupport event="onchange" rerender="matchingLead" />
+                                        </apex:inputCheckbox>
+                                        <apex:outputLabel value="Is Match Lead to Lead Enabled" />
+                                    </apex:outputPanel>
+                                </apex:pageBlockSection>
+                                <apex:pageBlockSection rendered="{!prLeadIsEnabled}" id="LAssign">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Match Order:" />
+                                        <apex:selectList size="1" value="{!prLeadToLeadOrder}" styleClass="dim_b">
+                                            <apex:actionsupport event="onchange" rerender="MainTab" />
+                                            <apex:selectOptions value="{!order}"></apex:selectOptions>
+                                        </apex:selectList>
+                                    </apex:pageBlockSectionItem>
+
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Assign To:" />
+                                        <apex:selectList size="1" value="{!prLeadOwner}" styleClass="dim_b">
+                                            <apex:actionsupport event="onchange" rerender="LAssign" />
+                                            <apex:selectOptions value="{!AssignedTo_L2L}"></apex:selectOptions>
+                                        </apex:selectList>
+                                    </apex:pageBlockSectionItem>
+
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Match From :"/>
+                                        <apex:selectList size="1" value="{!prLeadMatchFrom}" styleClass="dim_b">
+                                            <apex:actionSupport event="onchange" reRender="LAssign" />
+                                            <apex:selectOptions value="{!MatchFrom_L2L}" />
+                                    </apex:selectList>
+                                </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+
+                                <apex:pageBlockSection rendered="{!prLeadIsEnabled}">
+                                    <apex:pageBlockSectionItem >
+                                        <apex:outputLabel value="Select fields (in order) to match on: [?]" />
+                                        <apex:panelGrid columns="3" id="lead_Match_Fields">
+                                            <apex:selectList styleClass="order" id="sel1" value="{!selected_MapField_Left_for_lead}" multiselect="true" >
+                                                <apex:selectOptions value="{!leadunselectedvalues}" />
+                                            </apex:selectList>
+                                            <apex:panelGroup >
+                                                <br/>
+                                                <apex:commandButton action="{!leadselectclick}" reRender="lead_Match_Fields" value=">>" />
+                                                    <br/>
+                                                    <br/>
+                                                    <apex:commandButton action="{!leadunselectclick}" reRender="lead_Match_Fields" value="<<" />
+                                                </apex:panelGroup>
+                                                <apex:selectList styleClass="order" id="sel2" value="{!selected_MapField_Right_for_lead}" multiselect="true" >
+                                                    <apex:selectOptions value="{!leadSelectedValues}" />
+                                                </apex:selectList>
+                                            </apex:panelGrid>
+                                        </apex:pageBlockSectionItem>
+                                    </apex:pageBlockSection>
+                            </apex:pageBlock>
+
+                                <!-- Design Of Filler's -->
+                                <apex:pageBlock title="Filler And Domain Words" id="fillerDomain">
+                                    <apex:pageBlockSection id="block" columns="2">
+                                        <apex:pageBlockSectionItem >
+                                            <!-- Display Filler Words -->
+                                            <apex:outputPanel >
+                                                <apex:inputText id="inp_filler" value="{!inp_value}" styleClass="inp"/>&nbsp;
+
+                                            <apex:commandLink action="{!addFillerWord}" value="+" reRender="fillerDomain" styleClass="add"/>
+                                       </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                <apex:outputPanel >
+                                    <apex:inputText id="inpDomain" value="{!inp_domain}" styleClass="inp"/>&nbsp;
+                                        <apex:commandLink action="{!addDomainWord}" value="+" reRender="fillerDomain" styleClass="add"/>
+                                    </apex:outputPanel>
+                                </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                                    <br />
+                                    <hr />
+                            <apex:pageBlockSection id="filler" columns="2">
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputPanel >
+                                    <table class="custom_table">
+                                        <apex:repeat value="{!DisplayNow}" var="f">
+                                            <tr class="custom_tr">
+                                                <td Class="fillerdomain" style="border: 1px solid green;">
+                                                    <apex:outputText value="{!f}"/>&nbsp;
+
+                                                    <apex:commandLink action="{!remove}" reRender="filler" style="color:red;">&#x2718;
+
+                                                        <apex:param name="filler_value" value="{!f}" assignTo="{!selected_filler}"/>
+                                                    </apex:commandLink>
+                                                </td>
+                                            </tr>
+                                    </apex:repeat>
+                                    </table>
+                                </apex:outputPanel>
+                                </apex:pageBlockSectionItem>
+                                    <apex:pageBlockSectionItem >
+                                    <apex:outputPanel >
+                                        <table class="custom_table">
+                                            <apex:repeat value="{!DomainWords}" var="d">
+                                                <tr class="custom_tr">
+                                                    <td class="fillerdomain" style="border: 1px solid green;">
+                                                        <apex:outputText value="{!d}" />&nbsp;
+                                                        <apex:commandLink action="{!removeDomain}" reRender="filler" style="color:red;">&#x2718;
+                                                        <apex:param name="domain_value" value="{!d}" assignTo="{!selected_domain}"/>
+                                                        </apex:commandLink>
+                                                    </td>
+                                                </tr>
+                                            </apex:repeat>
+                                        </table>
+                                    </apex:outputPanel>
+                                    </apex:pageBlockSectionItem>
+                                </apex:pageBlockSection>
+                            </apex:pageBlock>
+                            </apex:form>
+                        </apex:pageBlock>
+                    </apex:tab>
+                </apex:tabPanel>
+            </apex:page>

@@ -1,0 +1,166 @@
+<apex:page controller="zigpr.ActivityLogController" showHeader="true" sidebar="false">
+
+    <style>
+    .reassignedObject {
+        background-color: #68ad68;
+    }
+    .normalObject {
+        background-color: white;
+    }
+    </style>
+
+    <apex:sectionHeader title="Power Router" subtitle="Activities" />
+
+    <apex:form >
+    <apex:outputLabel value="{!status}" style="float: right; color: green;" />
+    <apex:actionFunction name="refreshPageSize" action="{!refreshPageSize}"
+        status="fetchStatus" reRender="block"/>
+
+    <apex:pageBlock title="Plan Upgrade Required" id="block1" rendered="{!IF(isPremiumOrProfessionalFeaturesEnabled,false,true)}">
+        <apex:pageBlockSection columns="1">
+            <apex:page >
+                <apex:outputText style="" value="Router Activities are available in Power Router Professional Plan or higher. To upgrade - contact Ziguar Support (support@ziguar.com) and gain access to more features and functionalities">
+                </apex:outputText>
+            </apex:page>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+
+    <apex:pageBlock title="Activities" id="block" rendered="{!IF(isPremiumOrProfessionalFeaturesEnabled,true,false)}">
+        <apex:pageBlockButtons location="top">
+
+        </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="8">
+            <apex:selectList label="Select object type: "  value="{!selectedObjectType}" size="1">
+            <apex:selectOptions value="{!ObjectTypes}"/>
+             <apex:actionSupport event="onchange" rerender="actList, pGrid, summary" action="{!refreshSetCon}" status="statusAction"/>
+            </apex:selectList>
+            <apex:selectList label="Select interval: " value="{!selectedPeriod}" size="1">
+            <apex:selectOptions value="{!IntervalPeriods}"/>
+             <apex:actionSupport event="onchange" rerender="actList, pGrid, summary, resultsPanel" action="{!refreshSetCon}" status="statusAction"/>
+            </apex:selectList>
+            <apex:inputCheckbox label="Aggregate summary:" value="{!shdAggregate}" id="my_chk_bx">
+                <apex:actionSupport event="onchange" rerender="summary" action="{!loadSummary}" status="statusAction"/>
+            </apex:inputCheckbox>
+            <br/>
+            </apex:pageBlockSection>
+               <apex:panelGroup >
+                 <span>&nbsp;&nbsp;</span>
+                        <apex:actionStatus id="statusAction">
+                            <apex:facet name="start">
+                                <img src="/img/loading.gif" height="14px" width="14px"/>
+                            </apex:facet>
+
+                            <apex:facet name="stop">
+                                <img src="/img/s.gif" height="14px" width="14px"/>
+                            </apex:facet>
+                        </apex:actionStatus>
+            </apex:panelGroup>
+            <apex:pageBlockSection columns="1"  title="Summary" rendered="{!IF(isPremiumOrProfessionalFeaturesEnabled,true,false)}" id="summaryTable">
+            <apex:pageBlockTable value="{!Paging.mSummary}" var="summary" id="summary" first="{!Paging.offset}"
+                            rows="{!Paging.PageSize}">
+            <br/>
+                <apex:column headerValue="User" value="{!summary.userName}"></apex:column>
+                <apex:column headerValue="Team name" value="{!summary.teamName}" rendered="{!!shdAggregate}"></apex:column>
+                <apex:column headerValue="Records assigned" value="{!summary.count}"></apex:column>
+                <apex:column headerValue="Avg Time to First Action" value="{!summary.timeToAction}"></apex:column>
+            </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <c:pagingToolbar Paging="{!Paging}" rerender="summary" />
+
+            <!-- optimize implementation -->
+            <apex:pageBlockSection columns="1" id="actList" title="Assignments">
+            <br/>
+
+            <apex:pageBlockTable value="{!leads}" var="lead" rendered="{!selectedObjectType == 'Lead'}">
+                <apex:column headerValue="Record" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}">
+                    <apex:outputLink value="/{!lead.Id}">{!lead.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Assigned To" value="{!lead.zigpr__prOwner__c}" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Of Team" value="{!lead.zigpr__prRoutingTeam__c}" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Using Workflow" value="{!lead.zigpr__prRoutingWorkflow__c}" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Assignment Reason" value="{!lead.zigpr__prAssignReason__c}" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                 <apex:column headerValue="Assigned Account" value="{!lead.zigpr__prMatchedAccount__c}"
+                  rendered="{!matchingEnabled}" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Assigned On" value="{!lead.zigpr__prAssignedDate__c}" styleClass="{!IF(lead.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+            </apex:pageBlockTable>
+
+
+            <apex:pageBlockTable value="{!cases}" var="case" rendered="{!selectedObjectType == 'Case'}">
+                <apex:column headerValue="Record">
+                    <apex:outputLink value="/{!case.Id}" styleClass="{!IF(case.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}">{!case.CaseNumber}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Assigned To" value="{!case.zigpr__prOwner__c}" styleClass="{!IF(case.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Of Team" value="{!case.zigpr__prRoutingTeam__c}" styleClass="{!IF(case.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Using Workflow" value="{!case.zigpr__prRoutingWorkflow__c}" styleClass="{!IF(case.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Assigned On" value="{!case.zigpr__prAssignedDate__c}" styleClass="{!IF(case.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+            </apex:pageBlockTable>
+
+            <apex:pageBlockTable value="{!opportunities}" var="opp" rendered="{!selectedObjectType == 'Opportunity'}">
+                <apex:column headerValue="Record">
+                    <apex:outputLink value="/{!opp.Id}">{!opp.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Assigned To" value="{!opp.zigpr__prOwner__c}" styleClass="{!IF(opp.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Of Team" value="{!opp.zigpr__prRoutingTeam__c}" styleClass="{!IF(opp.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Using Workflow" value="{!opp.zigpr__prRoutingWorkflow__c}" styleClass="{!IF(opp.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+                <apex:column headerValue="Assigned On" value="{!opp.zigpr__prAssignedDate__c}" styleClass="{!IF(opp.zigpr__isPRReassigned__c = True,'reassignedObject','normalObject')}"></apex:column>
+            </apex:pageBlockTable>
+
+             <apex:pageBlockTable value="{!customRecords}" var="customObj" rendered="{!isCustomObject}">
+                 <apex:column headerValue="Record" styleClass="{!IF(customObj['isPRReassigned__c'] = True,'reassignedObject','normalObject')}">
+                    <apex:outputLink value="/{!customObj['Id']}">{!customObj['name']}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Assigned To" styleClass="{!IF(customObj['isPRReassigned__c'] = True,'reassignedObject','normalObject')}">
+                    <apex:outputText value="{!customObj['prOwner__r.name']}" />
+                </apex:column>
+                <apex:column headerValue="Of Team" styleClass="{!IF(customObj['isPRReassigned__c'] = True,'reassignedObject','normalObject')}">
+                    <apex:outputText value="{!customObj['prRoutingTeam__r.name']}" />
+            </apex:column>
+             <apex:column headerValue="Using Workflow" styleClass="{!IF(customObj['isPRReassigned__c'] = True,'reassignedObject','normalObject')}">
+                    <apex:outputText value="{!customObj['prRoutingWorkflow__r.name']}" />
+            </apex:column>
+             <apex:column headerValue="Assigned On" styleClass="{!IF(customObj['isPRReassigned__c'] = True,'reassignedObject','normalObject')}">
+                    <apex:outputText value="{!customObj['prAssignedDate__c']}" />
+            </apex:column>
+             </apex:pageBlockTable>
+
+            <apex:panelGrid columns="8" id="pGrid">
+                <apex:selectList value="{!size}" multiselect="false" size="1" onchange="refreshPageSize();">
+                    <apex:selectOptions value="{!paginationSizeOptions}"/>
+                </apex:selectList>
+
+                <apex:commandButton status="fetchStatus" reRender="block" value="First" action="{!setCon.first}" disabled="{!!setCon.hasPrevious}" title="First Page"/>
+
+                <apex:commandButton status="fetchStatus" reRender="block" value="Previous" action="{!setCon.previous}" disabled="{!!setCon.hasPrevious}" title="Previous Page"/>
+
+                <apex:commandButton status="fetchStatus" reRender="block" value="Next" action="{!setCon.next}" disabled="{!!setCon.hasNext}" title="Next Page"/>
+
+                <apex:commandButton status="fetchStatus" reRender="block" value="Last" action="{!setCon.last}" disabled="{!!setCon.hasNext}" title="Last Page"/>
+
+                <apex:outputText >{!(setCon.pageNumber * size)+1-size}-{!IF((setCon.pageNumber * size)>numRecords, numRecords, (setCon.pageNumber * size))} of {!numRecords}
+                </apex:outputText>
+
+                <apex:outputPanel >
+                    <apex:actionStatus id="fetchStatus" >
+                        <apex:facet name="start" >
+                          <img src="/img/loading.gif" />
+                        </apex:facet>
+                    </apex:actionStatus>
+                </apex:outputPanel>
+
+            </apex:panelGrid>
+            </apex:pageBlockSection>
+    </apex:pageBlock>
+
+    <apex:pageBlock >
+                <apex:pageBlockSection columns="1"  title="Alerts" >
+                <apex:commandButton style="float:right" value="Delete Alerts" action="{!deleteAlerts}" rendered="{!alerts.size != 0}"/>
+                <apex:pageBlockTable value="{!alerts}" var="alert">
+                    <apex:column value="{!alert.zigpr__recordId__c}"/>
+                    <apex:column value="{!alert.zigpr__Message__c}"/>
+                    <apex:column value="{!alert.createdDate}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+    </apex:pageBlock>
+
+    </apex:form>
+</apex:page>

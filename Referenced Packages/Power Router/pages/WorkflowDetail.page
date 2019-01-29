@@ -1,0 +1,98 @@
+<apex:page standardController="zigpr__RoutingWorkflow__c" extensions="zigpr.RoutingWFController"
+    tabstyle="Router_Workflows__tab" >
+
+    <apex:sectionHeader title="Router Workflow" subtitle="{!workflowName}"/>
+    <apex:form >
+        <apex:pageBlock mode="Edit" id="workflow" >
+            <apex:pageMessages ></apex:pageMessages>
+            <apex:pageBlockButtons location="top" >
+                <apex:commandButton style="float:right" value="Remove Workflow" action="{!remove}" rendered="true"
+                                    onclick="return confirm('Are you sure you want to remove this workflow?');"/>
+                <apex:commandButton style="float:right" value="Edit" action="{!edit}" rendered="true"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection title="Workflow Details">
+                <apex:outputField label="Workflow name" value="{!workflow.Name }"/>
+                <apex:outputField label="Route Order" value="{!workflow.zigpr__Route_Order__c}"/>
+                <apex:outputField label="Owner" value="{!workflow.Owner.Name }"/>
+                <apex:outputField label="Created By" value="{!workflow.CreatedBy.Name }"/>
+                <apex:outputField label="Created Date" value="{!workflow.CreatedDate }"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Router Object Details" columns="2">
+                <apex:outputField label="Record Type" value="{!workflow.Object_Type__c }"/>
+                <apex:outputText label="Router Source" value="{!queueName}"/>
+                <apex:outputField label="Active" value="{!workflow.Active__c }"/>
+                <apex:outputField label="Algorithm" value="{!workflow.Algorithm__c }"/>
+                <apex:outputField label="SLA Enabled" value="{!workflow.zigpr__isSLAReassignmentEnabled__c}" rendered="{!showPremiumFeatures}"/>
+                <apex:outputField label="SLA Time" value="{!workflow.zigpr__SLAString__c}" rendered="{!showPremiumFeatures}"/>
+            </apex:pageBlockSection>
+
+            <apex:outputPanel id="memberTable">
+                <apex:pageBlockSection title="Team and Member Details" columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Lookup Team" for="team"/>
+                    <apex:outputField label="Lookup Team" value="{!workflow.zigpr__RoutingTeam__c}"
+                                      id="team"/>
+                </apex:pageBlockSectionItem>
+
+                    <apex:panelGrid width="80%" style="padding-left:120px" >
+                        <!--<apex:pageBlockSection title="Member details" rendered="true">-->
+                        <apex:pageBlockTable value="{!membersAttrMap}" var="member" align="center">
+                            <tr><apex:column headerValue="Id" value="{!member.Name}"/></tr>
+                            <tr><apex:column headerValue="User" value="{!member.zigpr__User__c}"/></tr>
+                            <tr><apex:column headerValue="Vacation Dates" value="{!member.zigpr__User__c}" rendered="False"/></tr>
+                            <tr><apex:column headerValue="Daily Cap" rendered="False">
+                                <apex:outputField value="{!membersAttrMap[member].DailyCap__c}"/>
+                                </apex:column>
+                            </tr>
+                            <tr><apex:column headerValue="Daily Count" rendered="False">
+                                <apex:outputField value="{!membersAttrMap[member].DailyCount__c}" />
+                                </apex:column>
+                            </tr>
+                            <tr><apex:column headerValue="Available">
+                                <apex:outputField value="{!member.zigpr__Available__c}" />
+                                </apex:column>
+                            </tr>
+                            <tr><apex:column headerValue="Weight" rendered="{!workflow.zigpr__Algorithm__c == 'Weighted'}">
+                                <apex:outputField value="{!membersAttrMap[member].Weight__c}" />
+                                </apex:column>
+                            </tr>
+                        </apex:pageBlockTable>
+                    </apex:panelGrid>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+
+            <apex:pageBlockSection title="Record Selection Rules" columns="1" rendered="true">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Logic operator" for="oper"/>
+                    <apex:outputField label="Logic Operator" value="{!workflow.zigpr__logic_operator__c}" id="oper"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:panelGrid width="80%" style="padding-left:120px" >
+                    <apex:variable value="{!0}" var="rowNum"/>
+                    <apex:pageBlockTable value="{!wrapperFilters}" var="wrapperFilter" align="center" id="filtertable" columnsWidth="50px, 50px, 50px, 50px">
+                        <tr>
+                            <apex:column headerValue="Field" style="width:50px">
+                                <apex:outputField label="Logic Operator" value="{!wrapperFilter.filter.zigpr__Record_Field__c}"/>
+                            </apex:column>
+                        </tr>
+                        <tr>
+                            <apex:column headerValue="Operator">
+                                <apex:outputText style="width:150px" value="{!operatorMap[wrapperFilter.filter.zigpr__Operator__c]}"/>
+                            </apex:column>
+                        </tr>
+                        <tr>
+                            <apex:column headerValue="Value">
+                                <apex:outputField style="width:150px" value="{!wrapperFilter.filter.zigpr__Record_Value__c}"/>
+                            </apex:column>
+                        </tr>
+
+                        <apex:variable var="rowNum" value="{!rowNum + 1}"/>
+                    </apex:pageBlockTable>
+                </apex:panelGrid>
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

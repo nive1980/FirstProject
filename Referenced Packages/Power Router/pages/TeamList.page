@@ -1,0 +1,41 @@
+<apex:page standardController="zigpr__RoutingTeam__c" extensions="zigpr.RoutingTeamController" recordSetVar="teams"
+    tabstyle="Router_Teams__tab">
+
+    <apex:sectionHeader title="Router Teams"/>
+
+    <apex:form >
+        <apex:pageBlock title="Teams" id="team">
+            <apex:pageMessages ></apex:pageMessages>
+            <apex:pageBlockButtons location="top" >
+            <apex:pageBlockSection columns="1">
+                <apex:commandButton style="float:right" value="New Team" action="{!URLFOR($Action.RoutingTeam__C.New)}"/>
+            </apex:pageBlockSection>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1" id="pgtable">
+                <apex:pageBlockTable value="{!teams}" var="team" align="center" id="dispTable" width="100%">
+                <apex:column headerValue="Route Order" value="{!team.zigpr__Route_Order__c}"/>
+                <apex:column headerValue="Team Name">
+                    <apex:outputLink value="/{!team.Id}">{!team.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Active" value="{!team.zigpr__Active__c}"/>
+                <apex:column headerValue="Member Count" value="{!team.zigpr__memberCount__c}"/>
+                <apex:column headerValue="Action">
+                    <apex:commandButton value="Deactivate" id="deactivateButton"
+                                        action="{!makeTeamInactive}" rerender="pgtable" rendered="{!team.zigpr__Active__c == True}"
+                                        immediate="True">
+                        <apex:param value="{!team.id}" name="row" assignTo="{!statusTeamId}"/>
+                    </apex:commandButton>
+                    <apex:commandButton value="Activate" id="ActivateButton"
+                                        action="{!makeTeamActive}" rerender="pgtable" rendered="{!team.zigpr__Active__c == False}"
+                                        immediate="True">
+                        <apex:param value="{!team.id}" name="row" assignTo="{!statusTeamId}"/>
+                    </apex:commandButton>
+                </apex:column>
+                </apex:pageBlockTable>
+                <c:StandardPaginator setController="{!setCon}" paginationController="{!PaginationController}" panel="pgtable"/>
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

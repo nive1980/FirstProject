@@ -1,0 +1,55 @@
+<apex:page standardController="zigpr__RoutingTeam__c" extensions="zigpr.RoutingTeamController"
+           tabstyle="Router_Teams__tab">
+
+    <apex:sectionHeader title="Routing Team" subtitle="{!team.Name}"/>
+    <apex:messages />
+    <apex:form >
+        <apex:pageBlock mode="edit" id="team" >
+            <apex:pageMessages ></apex:pageMessages>
+
+            <apex:pageBlockButtons location="top" >
+                <apex:commandButton style="float:right" value="Create Workflow" action="{!createWorkflow}"/>
+                <apex:commandButton style="float:right" value="Remove Team" action="{!remove}"
+                                    onclick="return confirm('Are you sure you want to remove this team?');"/>
+                <apex:commandButton style="float:right" value="Edit" action="{!edit}"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection title="Team Details">
+                <apex:outputField label="Team name" value="{!team.Name }"/>
+                <apex:outputField label="Route Order" value="{!team.route_order__c }"/>
+                <apex:outputField label="Active" value="{!team.Active__c }"/>
+                <apex:outputField label="Business Hours" value="{!team.Business_Hours__c }"/>
+                <apex:outputField label="Owner" value="{!team.Owner.Name }"/>
+                <apex:outputField label="Created By" value="{!team.CreatedBy.Name }"/>
+                <apex:outputField label="Created Date" value="{!team.CreatedDate }"/>
+                <apex:outputField label="Individual Hours" value="{!team.enableIndividualHours__c }"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection title="Routing Members" columns="1">
+                <apex:pageBlockTable value="{!Paging.members}" var="member" align="center" id="memberTable"  first="{!Paging.offset}"
+                            rows="{!Paging.PageSize}">
+                    <apex:column headerValue="Id" value="{!member.Name}"/>
+                    <apex:column headerValue="User" ><apex:outputField value="{!member.zigpr__User__c}"/></apex:column>
+                    <apex:column headerValue="UserTag" rendered="False"><apex:outputField value="{!member.zigpr__UserTag__c}"/></apex:column>
+                    <apex:column headerValue="Available"><apex:outputField value="{!member.zigpr__Available__c}"/></apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+            <c:pagingToolbar Paging="{!Paging}" rerender="memberTable" />
+        </apex:pageBlock>
+
+        <br/>
+        <apex:pageBlock title="Related Routing Workflows">
+                <apex:pageBlockSection columns="1">
+                <apex:pageBlockTable value="{!workflows}" var="workflow" align="center" width="100%">
+                <apex:column width="" headerValue="Workflow Name">
+                    <apex:outputLink value="/{!workflow.Id}">{!workflow.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Algorithm" value="{!workflow.zigpr__Algorithm__c}"/>
+                <apex:column headerValue="Object Type" value="{!workflow.zigpr__Object_Type__c}"/>
+                <apex:column headerValue="Filter count" value="{!workflow.zigpr__filter_count__c}"/>
+                <apex:column headerValue="Active" value="{!workflow.zigpr__Active__c}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

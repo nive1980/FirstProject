@@ -1,0 +1,37 @@
+<apex:page controller="zigpr.UserSettingsController" showHeader="true" sidebar="false"
+    tabstyle="Availability_Status__tab">
+
+    <apex:sectionHeader title="Availability Status"/>
+
+    <apex:form >
+
+        <apex:pageBlock title="Members" id="member">
+            <apex:pageMessages ></apex:pageMessages>
+            <apex:pageBlockButtons location="top" >
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection columns="1" id="pgtable">
+                <apex:pageBlockTable value="{!members}" var="member" align="center" id="dispTable" width="100%">
+                <apex:column headerValue="User" value="{!member.User__r.name}"/>
+                <apex:column headerValue="Team Name">
+                    <apex:outputLink value="/{!member.zigpr__RoutingTeam__c}">{!member.RoutingTeam__r.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Availability Status" value="{!member.zigpr__Available__c}"/>
+                <apex:column headerValue="Action">
+                    <apex:commandButton value="Deactivate" id="deactivateButton"
+                                        action="{!makeMemberInactive}" rerender="pgtable" rendered="{!member.zigpr__Available__c == True}"
+                                        immediate="True">
+                        <apex:param value="{!member.zigpr__RoutingTeam__c}" name="row" assignTo="{!memberTeamId}"/>
+                    </apex:commandButton>
+                    <apex:commandButton value="Activate" id="ActivateButton"
+                                        action="{!makeMemberActive}" rerender="pgtable" rendered="{!member.zigpr__Available__c == False}"
+                                        immediate="True">
+                        <apex:param value="{!member.zigpr__RoutingTeam__c}" name="row" assignTo="{!memberTeamId}"/>
+                    </apex:commandButton>
+                </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <aggregateTypes>Average</aggregateTypes>
+        <field>RoutingWorkflow__c.prRoutedOpps__r$prTimeToActionMs__c</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>RoutingWorkflow__c.prRoutedOpps__r$isPRAssigned__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>1</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>RoutingWorkflow__c.prRoutedOpps__r$prOwner__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Opportunity Time to First Action By User</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>OppRoutingWorkflows__c</reportType>
+    <scope>organization</scope>
+    <showDetails>false</showDetails>
+    <timeFrameFilter>
+        <dateColumn>RoutingWorkflow__c.prRoutedOpps__r$prAssignedDate__c</dateColumn>
+        <interval>INTERVAL_LAST7</interval>
+    </timeFrameFilter>
+</Report>

@@ -1,0 +1,245 @@
+<apex:page controller="zigpr.UserActiveHourController">
+    <apex:pageBlock >
+        <apex:outputLabel value="{!message}"></apex:outputLabel>
+       <apex:messages />
+        <apex:form >
+        <apex:pageBlockSection id="myform" columns="4" rendered="{!IF(ISBLANK(memberid),false,true)}" title="Active Hours For {!username}">
+            <apex:pageBlockSectionItem id="monday1">
+                <apex:outputLabel value="Monday :"/>
+                <apex:outputPanel >
+                    <apex:selectList value="{!mondayst}" size="1" styleClass="mylist" disabled="{!monday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="monday1"/>
+                    </apex:selectList>                   
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="To" />
+             </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="monday2">
+                <apex:outputPanel >
+                    <apex:selectList value="{!mondayet}" size="1" styleClass="mylist" disabled="{!monday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="monday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!monday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!mondayst}" value="00:00" name="mondaystarttime"/>
+                        <apex:param assignTo="{!mondayet}" value="23:59" name="mondayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!-- End Of Monday -->
+            
+                <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Tuesday :"/>
+                <apex:outputPanel id="tuesday1">
+                    <apex:selectList value="{!tuesdayst}" size="1" styleClass="mylist" disabled="{!tuesday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="tuesday1"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="To" />
+            </apex:outputPanel>
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel id="tuesday2">
+                    <apex:selectList value="{!tuesdayet}" size="1" styleClass="mylist" disabled="{!tuesday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="tuesday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!tuesday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!tuesdayst}" value="00:00" name="tuesdaystarttime"/>
+                        <apex:param assignTo="{!tuesdayet}" value="23:59" name="tuesdayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!-- End Of Tuesday -->
+            
+                <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Wednesday :"/>
+                <apex:outputPanel id="wednesday1">
+                    <apex:selectList value="{!wednesdayst}" size="1" styleClass="mylist" disabled="{!wednesday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="wednesday1"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="To" />
+            </apex:outputPanel>
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel id="wednesday2">
+                    <apex:selectList value="{!wednesdayet}" size="1" styleClass="mylist" disabled="{!wednesday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="wednesday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+             <apex:pageBlockSectionItem >
+                 <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!wednesday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!wednesdayst}" value="00:00" name="wednesdaystarttime"/>
+                        <apex:param assignTo="{!wednesdayet}" value="23:59" name="wednesdayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!-- End Of WednesDay -->
+            
+                <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Thursday :"/>
+                <apex:outputPanel id="thursday1">
+                    <apex:selectList value="{!thursdayst}" size="1" styleClass="mylist" disabled="{!thursday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="thursday1"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="To" />
+            </apex:outputPanel>
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel id="thursday2">
+                    <apex:selectList value="{!thursdayet}" size="1" styleClass="mylist" disabled="{!thursday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="thursday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+             <apex:pageBlockSectionItem >
+                 <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!thursday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!thursdayst}" value="00:00" name="thursdaystarttime"/>
+                        <apex:param assignTo="{!thursdayet}" value="23:59" name="thursdayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!-- End Of Thursday -->
+            
+                <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Friday :"/>
+                <apex:outputPanel id="friday1">
+                    <apex:selectList value="{!fridayst}" size="1" styleClass="mylist" disabled="{!friday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="friday1"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="To" />
+            </apex:outputPanel>
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel id="friday2">
+                    <apex:selectList value="{!fridayet}" size="1" styleClass="mylist" disabled="{!friday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="friday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!friday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!fridayst}" value="00:00" name="fridaystarttime"/>
+                        <apex:param assignTo="{!fridayet}" value="23:59" name="fridayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!-- End Of Friday -->
+            
+                <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Saturday :"/>
+                <apex:outputPanel id="saturday1">
+                    <apex:selectList value="{!saturdayst}" size="1" styleClass="mylist" disabled="{!saturday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="saturday1"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="To" />
+            </apex:outputPanel>
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel id="saturday2">
+                    <apex:selectList value="{!saturdayet}" size="1" styleClass="mylist" disabled="{!saturday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="saturday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!saturday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!saturdayst}" value="00:00" name="saturdaystarttime"/>
+                        <apex:param assignTo="{!saturdayet}" value="23:59" name="saturdayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!-- End Of saturday -->
+            
+                <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Sunday :"/>
+                <apex:outputPanel id="sunday1">
+                    <apex:selectList value="{!sundayst}" size="1" styleClass="mylist" disabled="{!sunday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="sunday1"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="To" />
+            </apex:outputPanel>
+            <apex:pageBlockSectionItem >
+                <apex:outputPanel id="sunday2">
+                    <apex:selectList value="{!sundayet}" size="1" styleClass="mylist" disabled="{!sunday24hours}">
+                        <apex:selectOptions value="{!intervals}" />
+                        <apex:actionSupport reRender="sunday2"/>
+                    </apex:selectList>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem >
+                 <apex:outputLabel value="24 Hours" />
+                <apex:inputCheckbox value="{!sunday24hours}" label="24 hours">
+                    <apex:actionSupport event="onchange" reRender="myform">
+                        <apex:param assignTo="{!sundayst}" value="00:00" name="sundaystarttime"/>
+                        <apex:param assignTo="{!sundayet}" value="23:59" name="sundayendtime"/>
+                    </apex:actionSupport>
+                </apex:inputCheckbox>
+            </apex:pageBlockSectionItem>
+            <!--End Of Sunday -->
+            
+            <apex:pageBlockSectionItem >
+                <apex:commandButton value="save" action="{!saveValue}"/>
+            </apex:pageBlockSectionItem>
+            <!-- <apex:pageBlockSectionItem >
+                <apex:outputLabel value="Current time {!displayTime}"></apex:outputLabel>
+            </apex:pageBlockSectionItem>
+            <apex:outputPanel >
+                <apex:outputLabel value="Available Users"/><br /> 
+                <apex:repeat value="{!BussinessUsers}" var="bu">
+                    <apex:outputText value="{!bu}" /><br />
+                </apex:repeat>
+            </apex:outputPanel> -->
+        </apex:pageBlockSection>
+            </apex:form>
+    </apex:pageBlock>
+<style type="text/css">
+    .mylist{
+        width:150px;
+        padding:1%;
+        }
+</style>
+</apex:page>
