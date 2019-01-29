@@ -3,7 +3,7 @@ public class ActionForProcessBuilder {
    @InvocableMethod
     public static void startWorkflow()
     {
-         system.debug('@@@ in startWorkflow start' );
+         system.debug('@@@ in startWorkflow start new' );
         //first delete LL RECORDS
         delete [SELECT Id FROM Component__c];
            delete [SELECT Id FROM Connection__c];
